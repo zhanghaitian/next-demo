@@ -1,24 +1,19 @@
+"use client";
 import React from "react";
 import { db } from "@/db";
 import { redirect } from "next/navigation";
+import { useActionState } from "react";
+import { createSnippet } from "@/actions";
+
+const initState = {
+  message: "",
+};
 
 export default function Page() {
+  const [state, formAction] = useActionState(createSnippet, initState);
 
-  async function createSnippet(formData: FormData) {
-    'use server'
-    const title = formData.get("title") as string;
-    const code = formData.get("code") as string;
-    const snippet = await db.snippet.create({
-      data: {
-        title,
-        code,
-      },
-    });
-    redirect('/')
-  }
-  
   return (
-    <form action={createSnippet}>
+    <form action={formAction}>
       <h3 className="text-2xl font-bold text-center">create a snippet</h3>
       <div className="flex flex-col gap-4 mt-4">
         {/* title */}
@@ -45,7 +40,15 @@ export default function Page() {
             id="code"
           />
         </div>
-        <button className="bg-teal-500 text-white p-2 rounded w-full" type="submit">Create</button>
+        {state.message && (
+          <p className=" my-2 rounded border border-red-500 bg-red-200">{state.message}</p>
+        )}
+        <button
+          className="bg-teal-500 text-white p-2 rounded w-full"
+          type="submit"
+        >
+          Create
+        </button>
       </div>
     </form>
   );
